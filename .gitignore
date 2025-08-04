@@ -1,0 +1,36 @@
+# Byte-compiled / cache / logs
+__pycache__/
+*.py[cod]
+*.log
+
+# Virtual environment
+venv/
+env/
+
+# Environment variables
+.env
+
+# SQLite database (development only)
+*.sqlite3
+*.db
+
+# Flask migration files (optional: keep versions/ folder if needed)
+migrations/
+instance/
+
+# Static/media uploads (optional: only ignore if user uploads files)
+static/uploads/
+
+# VS Code settings (optional)
+.vscode/
+
+# Heroku/Python build artifacts
+*.egg-info/
+dist/
+build/
+*.manifest
+*.spec
+
+# macOS / Windows OS junk
+.DS_Store
+Thumbs.db

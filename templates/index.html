@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+    <div class="p-5 mb-4 bg-light rounded-3">
+      <div class="container-fluid py-5">
+        <h1 class="display-5 fw-bold">Welcome to My Portfolio</h1>
+        <p class="col-md-8 fs-4">I'm a data science student passionate about building cool stuff with data and code. Check out my projects below!</p>
+      </div>
+    </div>
+    <div class="row">
+        {% for project in projects %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                {% if project.image_url %}
+                    <img src="{{ project.image_url }}" class="card-img-top" alt="{{ project.title }}" style="height: 200px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ project.title }}</h5>
+                    <p class="card-text">{{ project.description }}</p>
+                    {% if project.tags %}
+                        <p>
+                        {% for tag in project.tags.split(',') %}
+                            <span class="badge bg-secondary">{{ tag.strip() }}</span>
+                        {% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    {% if project.project_link %}
+                        <a href="{{ project.project_link }}" class="btn btn-primary" target="_blank">View Project</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <p>No projects to display yet. Add some in the Admin panel!</p>
+        {% endfor %}
+    </div>
+{% endblock %}
