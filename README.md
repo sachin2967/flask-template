@@ -2,7 +2,7 @@
 
 A small server-rendered portfolio/content-management starter built with Flask. It demonstrates form handling, user registration and login, SQLAlchemy models, database migrations, and authenticated project CRUD pages.
 
-> **Status and security boundary:** This is a learning/starter application, not a production-ready multi-user CMS. The current routes protect the project-management pages with login checks but do not implement role-based administrator authorization: any registered user can reach those pages. Add an explicit administrator model and authorization policy before deploying it publicly.
+> **Status and security boundary:** This is a learning/starter application, not a production-ready multi-user CMS. Project-management routes require an explicit administrator role; new registrations are ordinary users. Promote a trusted account through the local Flask CLI.
 
 ## Features
 
@@ -53,6 +53,8 @@ Initialize the migration repository once, then create and apply the initial sche
 flask --app app db init
 flask --app app db migrate -m "Initial schema"
 flask --app app db upgrade
+# After registering your own account, promote it from a trusted shell:
+flask --app app grant-admin <username>
 flask --app app run
 ```
 
@@ -75,14 +77,14 @@ For local debugging only, set `FLASK_DEBUG=1` in `.env`. Debug mode is off by de
 | `/`, `/index` | Public project listing |
 | `/register` | Create an account |
 | `/login`, `/logout` | Session authentication |
-| `/admin` | Authenticated project list |
-| `/add_project` | Create a project |
-| `/edit_project/<id>` | Update a project |
-| `/delete_project/<id>` | Delete a project (POST) |
+| `/admin` | Administrator-only project list |
+| `/add_project` | Administrator-only project creation |
+| `/edit_project/<id>` | Administrator-only project editing |
+| `/delete_project/<id>` | Administrator-only project deletion (POST) |
 
 ## Before any public deployment
 
-This repository is intentionally a starter. At minimum, implement role-based authorization (the present login check is not an admin role), restrict or disable open registration, configure HTTPS and secure cookie settings, add request rate limits and security headers, review CSRF and upload handling, use managed secrets, and establish database backups and migrations. Do not reuse example credentials or expose a development server to the internet.
+This repository is intentionally a starter. Before deployment, restrict or disable open registration, configure HTTPS and secure cookie settings, add request rate limits and security headers, review CSRF and rich-text/upload handling, use managed secrets, and establish database backups and migrations. Admin promotion is CLI-only; never add an HTTP self-service admin-registration path. Do not reuse example credentials or expose a development server to the internet.
 
 ## Repository structure
 
@@ -91,7 +93,7 @@ app.py          Flask app and extension initialization
 config.py       Environment-backed application configuration
 models.py       SQLAlchemy models
 forms.py        WTForms definitions
-routes.py       Authentication and project CRUD routes
+routes.py       Authentication, admin authorization and project CRUD routes
 templates/      Jinja page templates
 requirements.txt
 .env.example    Safe configuration template
