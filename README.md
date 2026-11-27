@@ -1,95 +1,102 @@
-## Project Structure
+# Flask Portfolio Starter
 
-```
-/flask_portfolio_template
-├── venv/                 # The locally generated virtual environment (Ignored by Git)
-├── migrations/
-├── static/
-├── templates/
-├── .env
-├── .gitignore
-├── app.py
-├── config.py
-├── forms.py
-├── models.py
-├── Procfile
-├── README.md
-├── requirements.txt
-└── routes.py
-```
+A small server-rendered portfolio/content-management starter built with Flask. It demonstrates form handling, user registration and login, SQLAlchemy models, database migrations, and authenticated project CRUD pages.
 
-## Local Setup & Run Commands (Windows)
+> **Status and security boundary:** This is a learning/starter application, not a production-ready multi-user CMS. The current routes protect the project-management pages with login checks but do not implement role-based administrator authorization: any registered user can reach those pages. Add an explicit administrator model and authorization policy before deploying it publicly.
 
-**1. Clone Repository**
+## Features
 
-```cmd
-git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name
-```
+- Flask application with Jinja templates
+- Registration, login, logout, password hashing and session management through Flask-Login
+- Project records with title, description, image URL, project link and tags
+- Create, edit and delete project routes
+- SQLAlchemy persistence with Flask-Migrate
+- Environment-based secret and database configuration
 
-**2. Create and Activate Virtual Environment**
+## Tech stack
 
-```cmd
-python -m venv venv
-venv\Scripts\activate
-```
+- Python and Flask
+- Flask-Login, Flask-WTF and Flask-Migrate
+- Flask-SQLAlchemy / SQLAlchemy
+- SQLite for local development; another SQLAlchemy-supported database can be configured through `DATABASE_URL`
 
-**3. Install Dependencies**
+## Local setup
 
-```cmd
+Requires Python and a version compatible with the packages in `requirements.txt`.
+
+```bash
+git clone https://github.com/sachin2967/flask-template.git
+cd flask-template
+
+python -m venv .venv
+# macOS / Linux
+source .venv/bin/activate
+# Windows PowerShell
+# .venv\Scripts\Activate.ps1
+
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-**4. Create Environment File**
-Create a new file named `.env` in the root project folder and add this line:
+Create your local environment file:
 
-```
-SECRET_KEY='my-local-dev-secret-key'
-```
-
-**5. Initialize Database**
-
-```cmd
-set FLASK_APP=app.py
-flask db init
-flask db migrate -m "Initial migration"
-flask db upgrade
+```bash
+cp .env.example .env
+python -c "import secrets; print(secrets.token_hex(32))"
 ```
 
-_(Note: `flask db init` is only needed once per project.)_
+Put the generated value in `.env` as `SECRET_KEY`. On Windows, copy `.env.example` to `.env` manually if `cp` is unavailable. The real `.env` file is ignored by Git; do not commit it.
 
-**6. Run the Local Server**
+Initialize the migration repository once, then create and apply the initial schema:
 
-```cmd
-flask run
+```bash
+flask --app app db init
+flask --app app db migrate -m "Initial schema"
+flask --app app db upgrade
+flask --app app run
 ```
 
-The application will be available at `http://127.0.0.1:5000`.
+The app is available at [http://127.0.0.1:5000](http://127.0.0.1:5000).
 
----
+For local debugging only, set `FLASK_DEBUG=1` in `.env`. Debug mode is off by default.
 
-## Deployment to Heroku (Windows)
+## Configuration
 
-**1. Create `requirements.txt` File**
+| Variable | Purpose |
+| --- | --- |
+| `SECRET_KEY` | Required signing key for Flask sessions and related security features |
+| `DATABASE_URL` | Optional SQLAlchemy database URL; defaults to local SQLite |
+| `FLASK_DEBUG` | Set to `1` only for local development |
 
-```cmd
-pip freeze > requirements.txt
+## Main routes
+
+| Route | Purpose |
+| --- | --- |
+| `/`, `/index` | Public project listing |
+| `/register` | Create an account |
+| `/login`, `/logout` | Session authentication |
+| `/admin` | Authenticated project list |
+| `/add_project` | Create a project |
+| `/edit_project/<id>` | Update a project |
+| `/delete_project/<id>` | Delete a project (POST) |
+
+## Before any public deployment
+
+This repository is intentionally a starter. At minimum, implement role-based authorization (the present login check is not an admin role), restrict or disable open registration, configure HTTPS and secure cookie settings, add request rate limits and security headers, review CSRF and upload handling, use managed secrets, and establish database backups and migrations. Do not reuse example credentials or expose a development server to the internet.
+
+## Repository structure
+
+```text
+app.py          Flask app and extension initialization
+config.py       Environment-backed application configuration
+models.py       SQLAlchemy models
+forms.py        WTForms definitions
+routes.py       Authentication and project CRUD routes
+templates/      Jinja page templates
+requirements.txt
+.env.example    Safe configuration template
 ```
 
-**2. Create `Procfile`**
-Create a file named `Procfile` (no extension) in the root folder with this single line:
+## License
 
-```
-web: flask db upgrade; gunicorn app:app
-```
-
-**3. Deploy using Heroku CLI**
-
-```cmd
-heroku login
-heroku create your-unique-app-name
-heroku addons:create heroku-postgresql:hobby-dev
-heroku config:set SECRET_KEY='$(openssl rand -base64 32)'
-git push heroku main
-heroku open
-```
+No license is currently specified. All rights remain with the copyright holder unless a license is added.
