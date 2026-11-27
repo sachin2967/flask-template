@@ -2,6 +2,7 @@
 
 import os
 import unittest
+from urllib.parse import urlsplit
 
 os.environ.setdefault("SECRET_KEY", "test-only-secret")
 os.environ.setdefault("DATABASE_URL", "sqlite://")
@@ -49,7 +50,7 @@ class AdminAuthorizationTests(unittest.TestCase):
     def test_registered_member_cannot_open_admin_or_create_project(self):
         login_response = self.login("member")
         self.assertEqual(login_response.status_code, 302)
-        self.assertTrue(login_response.headers["Location"].endswith("/"))
+        self.assertIn(urlsplit(login_response.headers["Location"]).path, {"/", "/index"})
 
         self.assertEqual(self.client.get("/admin").status_code, 403)
         self.assertEqual(self.client.get("/add_project").status_code, 403)
@@ -68,6 +69,14 @@ class AdminAuthorizationTests(unittest.TestCase):
         self.assertEqual(
             self.client.post(f"/delete_project/{project_id}").status_code, 403
         )
+
+    def test_trusted_cli_command_can_promote_a_user(self):
+        runner = app.test_cli_runner()
+        result = runner.invoke(args=["grant-admin", "member"])
+        self.assertEqual(result.exit_code, 0, result.output)
+        with app.app_context():
+            member = User.query.filter_by(username="member").one()
+            self.assertTrue(member.is_admin)
 
     def test_admin_can_open_admin_panel(self):
         self.login("admin")
