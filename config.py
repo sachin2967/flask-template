@@ -1,21 +1,21 @@
-# In config.py
 import os
 from dotenv import load_dotenv
 
-# Find the absolute path of the directory containing this file
+# Load local development configuration without overriding environment variables.
 basedir = os.path.abspath(os.path.dirname(__file__))
-# Load environment variables from .env
-load_dotenv(os.path.join(basedir, '.env'))
+load_dotenv(os.path.join(basedir, ".env"))
 
 
 class Config:
-    # A secret key is needed for security (e.g., for signing session cookies)
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'fsildjflsdjflsjfjdfs'
+    # Never fall back to a committed development secret.
+    SECRET_KEY = os.environ.get("SECRET_KEY")
+    if not SECRET_KEY:
+        raise RuntimeError(
+            "SECRET_KEY is required. Copy .env.example to .env and set a random value."
+        )
 
-    # This sets up the database URI. It will use the DATABASE_URL from Heroku if it exists,
-    # otherwise, it will create a local SQLite database named 'app.db'.
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'app.db')
-
-    # This is just to suppress a warning
+    # Use DATABASE_URL when provided; otherwise keep development data in SQLite.
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or (
+        "sqlite:///" + os.path.join(basedir, "app.db")
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
